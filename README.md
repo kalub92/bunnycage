@@ -1,5 +1,7 @@
 # Bunnycage
 
+![The build sequence, stepped through in the guide's 3D view](guide/build.gif)
+
 A two-part 3D-printed case that snaps the Rabbit r1 onto any MagSafe mount and charges it wirelessly (Qi, 5 V / 1 A). Rev A, not yet printed or fitted to a real r1.
 
 - **Build guide:** https://claude.ai/artifact/U1EJkFL8vgDhy9p68WVTH6 (source in `guide/`)
