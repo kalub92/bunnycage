@@ -1,0 +1,276 @@
+<title>Bunnycage Build Guide</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+/* Layout: workbench. A sticky 3D bench view on the left, the build sequence on the right; reference tables below. */
+:root {
+  --bg: #e8ecef; --surface: #f6f8f9; --ink: #16222b; --muted: #55656f; --line: #c4ced4;
+  --accent: #e8480c; --accent-ink: #ffffff; --part: #2f6f8f; --ok: #1d7a4c; --warn: #a15c00;
+  --display: "Space Grotesk", "Avenir Next", system-ui, sans-serif;
+  --body: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111a20; --surface: #18242c; --ink: #e6edf1; --muted: #93a4ae; --line: #2c3c46;
+  --accent: #ff6a2b; --accent-ink: #1a0d06; --part: #6bb3d3; --ok: #5fcf97; --warn: #f0b354; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #111a20; --surface: #18242c; --ink: #e6edf1; --muted: #93a4ae; --line: #2c3c46;
+  --accent: #ff6a2b; --accent-ink: #1a0d06; --part: #6bb3d3; --ok: #5fcf97; --warn: #f0b354; color-scheme: dark }
+
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--body); }
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 28px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 40px; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; line-height: 1.15; }
+h1 { font-size: clamp(28px, 5vw, 44px); font-weight: 700; letter-spacing: -0.02em; }
+h2 { font-size: 22px; font-weight: 700; }
+h3 { font-size: 16px; font-weight: 500; }
+p { margin: 0; max-width: 68ch; }
+a { color: var(--part); text-underline-offset: 2px; }
+a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+code, .mono { font-family: var(--mono); font-size: 0.9em; }
+.label { font: 500 11px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+
+header { display: flex; flex-direction: column; gap: 14px; }
+header p { color: var(--muted); font-size: 17px; }
+.specs { display: flex; flex-wrap: wrap; gap: 8px 28px; padding: 0; margin: 4px 0 0; list-style: none;
+  border-top: 1px solid var(--line); padding-top: 14px; }
+.specs li { display: flex; flex-direction: column; gap: 5px; }
+.specs b { font: 500 15px var(--mono); font-variant-numeric: tabular-nums; }
+
+.bench { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+.viewer { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.stage { position: relative; aspect-ratio: 4 / 3; max-width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; overflow: hidden;
+  background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 24px 24px; background-position: -1px -1px; }
+.stage canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+.stage .note { position: absolute; inset: auto 10px 8px 10px; color: var(--muted); font: 11px var(--mono); pointer-events: none; }
+.stage .legend { position: absolute; top: 8px; left: 10px; display: flex; flex-wrap: wrap; gap: 4px 12px; font: 11px var(--mono); color: var(--muted); pointer-events: none; }
+.legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+button { font: 500 13px var(--body); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 7px 12px; cursor: pointer; }
+button:hover { border-color: var(--ink); }
+button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.controls .count { font: 12px var(--mono); color: var(--muted); margin-left: auto; font-variant-numeric: tabular-nums; }
+
+.steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; min-width: 0; border-top: 1px solid var(--line); }
+.steps li { border-bottom: 1px solid var(--line); }
+.steps button { all: unset; box-sizing: border-box; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 4px 10px; width: 100%; padding: 14px 10px 14px 6px; cursor: pointer; }
+.steps button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.steps .n { font: 500 13px var(--mono); color: var(--muted); padding-top: 2px; }
+.steps .body { grid-column: 2; display: none; flex-direction: column; gap: 8px; color: var(--muted); }
+.steps .body ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 5px; }
+.steps .body strong { color: var(--ink); font-weight: 600; }
+.steps li.on { background: var(--surface); }
+.steps li.on .n { color: var(--accent); }
+.steps li.on .body { display: flex; }
+.check { color: var(--ok); } .caution { color: var(--warn); }
+
+section { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+th { font: 500 11px var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pill { display: inline-block; font: 500 11px var(--mono); padding: 2px 7px; border-radius: 99px; border: 1px solid currentColor; white-space: nowrap; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 28px; }
+.risks { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; max-width: 75ch; }
+@media (max-width: 820px) { .bench { grid-template-columns: minmax(0, 1fr); } .viewer { position: static; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="label">Rabbit r1 · MagSafe + Qi charging case · rev A</span>
+    <h1>Bunnycage</h1>
+    <p>A two-part printed case that snaps the r1 onto any MagSafe mount and charges it wirelessly. The r1 has no charging coil of its own, so the case carries one and feeds the USB-C port from a bay on the left edge.</p>
+    <ul class="specs">
+      <li><span class="label">Case, outside</span><b>95.2 × 82.4 × 18.4 mm</b></li>
+      <li><span class="label">Printed parts</span><b>2, no supports</b></li>
+      <li><span class="label">Charging</span><b>Qi 5 V / 1 A</b></li>
+      <li><span class="label">Plastic over magnets</span><b>0.6 mm</b></li>
+      <li><span class="label">Soldering</span><b>2 wires</b></li>
+    </ul>
+  </header>
+
+  <div class="bench">
+    <div class="viewer">
+      <div class="stage">
+        <canvas id="view" aria-label="3D view of the case assembly for the selected step"></canvas>
+        <div class="legend"><span><i style="background:#3b7d9e"></i>printed</span><span><i style="background:#f04e12"></i>r1</span><span><i style="background:#9aa3a8"></i>magnet ring</span><span><i style="background:#c98a3c"></i>coil</span><span><i style="background:#2f9e5b"></i>boards</span></div>
+        <div class="note" id="note">Drag to orbit · scroll or pinch to zoom</div>
+      </div>
+      <div class="controls">
+        <button id="prev" type="button">← Back</button>
+        <button id="next" type="button">Next step →</button>
+        <button id="xray" type="button" aria-pressed="false">See-through case</button>
+        <span class="count" id="count"></span>
+      </div>
+    </div>
+    <ol class="steps" id="steps"></ol>
+  </div>
+
+  <section>
+    <h2>Bill of materials</h2>
+    <p>Prices and stock as seen on 16 Nov 2026. The first three rows are the charging hardware; the rest you may already own.</p>
+    <div class="scroll"><table>
+      <thead><tr><th>Part</th><th>Qty</th><th>What to buy</th><th>Key size</th><th>Price</th><th>Link status</th></tr></thead>
+      <tbody id="bom"></tbody>
+    </table></div>
+    <p>You also need a soldering iron, hot glue or CA glue, and a MagSafe or Qi2 charger to test with. Tools and charger are not counted above.</p>
+  </section>
+
+  <section class="two">
+    <div><section>
+      <h2>Print settings</h2>
+      <div class="scroll"><table>
+        <tr><th>Files</th><td><code>stl/bunnycage_body.stl</code>, <code>stl/bunnycage_lid.stl</code>, and <code>stl/bunnycage_fit_test.stl</code> to try first, all in this project folder</td></tr>
+        <tr><th>Material</th><td>PETG. PLA softens near a warm coil.</td></tr>
+        <tr><th>Orientation</th><td>As exported: body back-face down, lid top-face down</td></tr>
+        <tr><th>Layer / nozzle</th><td class="num">0.2 mm / 0.4 mm</td></tr>
+        <tr><th>Walls / infill</th><td>3 perimeters, 20% infill. Most of the part is solid walls.</td></tr>
+        <tr><th>Supports</th><td>None. Lips are chamfered at 45°. The longest bridge is 23 mm, under the spine wall.</td></tr>
+        <tr><th>First layers</th><td>The back skin is 3 layers. Print the first layer slowly so it is watertight.</td></tr>
+      </table></div>
+    </section></div>
+    <div><section>
+      <h2>Tuning knobs</h2>
+      <p>Edit the top of <code>cad/bunnycage.scad</code>, then run <code>cad/build.sh</code> to regenerate every STL.</p>
+      <div class="scroll"><table>
+        <thead><tr><th>If…</th><th>Change</th></tr></thead>
+        <tr><td>r1 is tight or loose in the rails</td><td><code>clr</code> (0.2)</td></tr>
+        <tr><td>Snap at the right corners is too weak or too hard</td><td><code>detent_pre</code> (0.1), <code>detent_len</code> (1.2)</td></tr>
+        <tr><td>Corners bind</td><td><code>dev_r</code> (7.5)</td></tr>
+        <tr><td>Receiver panel does not sit flush</td><td><code>bt</code> (3.0), <code>panel</code> (48 × 32)</td></tr>
+        <tr><td>Your magnet ring is not 54 mm</td><td><code>ring_od</code> (54)</td></tr>
+        <tr><td>Plug board is long or short</td><td><code>spine_in</code> (18)</td></tr>
+        <tr><td>Plug sits high or low at the port</td><td><code>shelf_drop</code> (3.0)</td></tr>
+        <tr><td>Lid is loose or will not press in</td><td><code>rib</code> (0.15)</td></tr>
+      </table></div>
+    </section></div>
+  </section>
+
+  <section>
+    <h2>Known limits</h2>
+    <ul class="risks" id="risks"></ul>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+const BOM = [
+  ["Qi receiver", "1 of 2", "Acxico Wireless Charger Receiver Module PCBA Board Coil, Universal Qi, 2-pack", "https://www.amazon.com/s?k=Acxico+2Pcs+Wireless+Charger+Receiver+Module+PCBA+Board+Coil+Universal+Qi+DIY", "Amazon", "coil 41 × 29; sheet ≈ 42 × 34; board 34 × 14", "$9.99", "ok", "in stock on 16 Nov 2026 per saved listing; link is a title search"],
+  ["Magnet ring", "1 of 5", "MagSafe magnet ring. Case is now sized for a 53.9 × 45.8 × 2.6 mm ring; this linked ring is 1.5 mm thick and needs ring_t = 1.5, bt = 2.6", "https://totalelement.com/products/54-x-46-x-1-5mm-magsafe-neodymium-rare-earth-magnet-phone-attachment-ring-assembly-with-alignment-magnet-5-pack", "TotalElement", "54 OD / 46 ID / 1.5", "$24.99", "ok", "in stock"],
+  ["USB-C plug", "1 of 10", "ANMBEST USB-C 24-pin male plug on solder board, 10-pack. Choose style Male", "https://www.amazon.com/dp/B091CRLJM2?th=1", "Amazon", "plug 8.4 × 2.6 mm", "$7.49", "ok", "in stock on 16 Nov 2026 per saved listing"],
+  ["Filament", "29 g", "Polymaker PolyLite PETG 1.75 mm, 1 kg", "https://matterhackers.com/store/l/polymaker-polylite-petg-grey-175mm-1kg/sk/MUR5Z8PG", "MatterHackers", "1.75 mm", "$19.99", "ok", "in stock"],
+  ["Adhesive sheet", "1", "3M 468MP transfer adhesive, 305 × 305 mm", "https://spool3d.ca/3m-468mp-adhesive-sheet-305mm-x-305mm/", "Spool3D (Canada)", "0.13 mm thick", "CA$8.00", "ok", "in stock; ships from Canada"],
+  ["CC resistor", "0 or 1", "Fallback only: 56 kΩ ¼ W resistor (Stackpole CFM14JT56K0 or any 56 kΩ). Buy it only if the plug board turns out not to have one fitted", "https://www.digikey.com/en/products/detail/stackpole-electronics-inc/CFM14JT56K0/1742250", "DigiKey", "axial, trim the leads", "≈ $0.10", "warn", "assumed already on the plug board; not yet measured"],
+  ["Kapton tape", "1", "Polyimide tape 10 mm × 33 yd", "https://protosupplies.com/product/polyimide-kapton-tape-10mm-x-33yds/", "ProtoSupplies", "10 mm wide", "$1.95", "ok", "in stock"],
+];
+const RISKS = [
+  "<strong>Not yet printed or fitted to a real r1.</strong> Dimensions come from rabbit's official drawing (about ±0.3 mm) and a community model. Print the fit-test piece before the full body.",
+  "<strong>Receiver size is partly estimated.</strong> The listing gives only the coil (41 × 29 mm). The ferrite sheet size was scaled from product photos; the recess is oversized and the sheet trims with scissors.",
+  "<strong>The receiver is an unbranded module.</strong> The listing says Qi but names no chip. Confirm it charges on your MagSafe charger at step 5 before gluing.",
+  "<strong>The SIM tray is covered</strong> by the spine wall. Slide the r1 out to reach it.",
+  "<strong>The ring sits 10 mm left of the r1's centre</strong> so its magnets stay clear of the scroll wheel's Hall sensor. It lands on the centre of the whole case. If scrolling misbehaves in the case, the magnets are the first suspect.",
+  "<strong>The r1 has a magnetometer.</strong> Expect the compass to read wrong inside the case.",
+  "<strong>5 W charging makes heat.</strong> The battery sits directly behind the coil. If the back gets hot to the touch, take it off the charger and check coil alignment.",
+  "<strong>The orientation magnet that ships with the ring is not used.</strong> It does not fit on a 78 mm device, so the case can rotate freely on a round mount.",
+];
+const STEPS = [
+  { t: "The finished case", cam: "front", off: {}, hide: ["puck"],
+    h: "<p>The r1 rides in two rails and slides out to the right. The left spine hides the USB-C plug and the receiver board. Step through to build it.</p>" },
+  { t: "Print the body and lid", cam: "front", off: { lid: [0, 0, 30] }, hide: ["r1", "ring", "coil", "plug", "rx", "puck"],
+    h: "<ul><li>Print <strong>bunnycage_fit_test.stl</strong> first. It is a low frame of the body with all four corners and both snap bumps, and takes a fraction of the time.</li><li>Then print the body and lid in PETG, no supports.</li></ul>" },
+  { t: "Check the fit before adding electronics", cam: "front", off: { r1: [55, 0, 0] }, hide: ["lid", "ring", "coil", "plug", "rx", "puck"],
+    h: "<ul><li>Slide the r1 in from the right, screen up. The scroll wheel side goes in last.</li><li class='check'>It should glide under the lips and click past the two corner bumps, then sit with no rattle.</li><li>Too tight or no click? Adjust <code>clr</code> or <code>detent_pre</code> and reprint the test piece.</li></ul>" },
+  { t: "Set the magnet ring", cam: "top", off: { ring: [0, 0, 32] }, hide: ["r1", "lid", "coil", "plug", "rx", "puck"],
+    h: "<ul><li class='caution'><strong>Check polarity first.</strong> Lay the ring loose in the pocket, magnet side down and steel backing up toward the r1, and bring your MagSafe charger up to the outside of the case. It should pull in hard. If it pushes away or feels weak, flip the ring.</li><li>Stick it down with the adhesive sheet, pressed against the pocket wall.</li><li>Leave the small orientation magnet out.</li><li>The ring drops over the raised boss in the middle of the pocket. The boss is what the coil rests on.</li></ul>" },
+  { t: "Lay the receiver over the ring", cam: "top", off: { coil: [0, 0, 32] }, hide: ["r1", "lid", "plug", "rx", "puck"],
+    h: "<ul><li>Hold the coil and board flat together and slide the <strong>board first</strong> through the wide slot under the spine wall. It passes under the plug shelf and stops with the coil resting on the boss in the centre of the ring. Copper side down, long side across the case. Nothing needs bending.</li><li>Lay the <strong>black ferrite sheet</strong> on top in the rectangular recess, between the coil and the r1. Trim it with scissors if it is too big. Without the sheet the coil heats the battery and charges badly.</li><li>Fix the sheet with a strip of adhesive along each long edge.</li></ul>" },
+  { t: "Wire the receiver to the USB-C plug", cam: "spine", off: { rx: [0, 0, 26], plug: [-4, 0, 26] }, hide: ["r1", "lid", "puck"],
+    h: "<ul><li>Solder the receiver's <strong>red</strong> wire to the <strong>V</strong> pad on the plug board (the end pad with two small holes) and <strong>black</strong> to <strong>G</strong> at the other end. Trim the wires to about 40 mm.</li><li class='caution'><strong>Check the CC resistor first.</strong> The board has no CC pad; the resistor that tells the r1 a charger is attached should already be on the back (R1 or R3). Measure across each, or read the marking: you want <strong>56 kΩ</strong> (<code>563</code> or <code>73C</code>). This guide assumes it is there. If you find 5.1 kΩ (<code>512</code> or <code>69B</code>) instead, stop: that resistor has to come off and a 56 kΩ go from its CC-side pad to V.</li><li>Leave the two middle pads, D+ and D−, unconnected.</li><li class='check'>Bench test: set the case on the charger and measure 5 V across V and G before going further.</li><li>Tape the receiver board down where it lies.</li></ul>" },
+  { t: "Seat the plug using the r1 as the jig", cam: "front", off: { r1: [38, 0, 0] }, hide: ["lid", "puck"],
+    h: "<ul><li>Rest the plug board on its shelf with the plug poking through the window.</li><li>Slide the r1 in until it clicks home and the plug is fully in the port. The r1 has now put the plug exactly where it belongs.</li><li>Flood under and around the plug board with hot glue, and pack the gap between the tail of the board and the outer wall. That plug of glue takes the push every time the r1 slides in.</li><li>Let it set before pulling the r1 out.</li></ul>" },
+  { t: "Tape over the coil and close the spine", cam: "front", off: { lid: [0, 0, 26], r1: [70, 0, 0] }, hide: ["puck"],
+    h: "<ul><li>With the r1 out, lay Kapton tape across the receiver panel so the r1's back slides on tape.</li><li>Tuck the wires down and press the lid into the spine. Six small ribs hold it by friction. The notch on the left edge is for prying it back off.</li></ul>" },
+  { t: "Snap on and charge", cam: "back", xray: true, off: { puck: [0, 0, 0] }, hide: [],
+    h: "<ul><li>Slide the r1 in and put the case on a MagSafe charger or mount.</li><li class='check'>The r1 should show charging within a few seconds.</li><li>Feel the back after ten minutes. Warm is normal, hot is not.</li></ul>" },
+];
+
+// ---- page content from the data above ----
+const $ = id => document.getElementById(id);
+$("bom").innerHTML = BOM.map(r => `<tr><td>${r[0]}</td><td class="num">${r[1]}</td><td><a href="${r[3]}" target="_blank" rel="noopener">${r[2]}</a><br><span class="label">${r[4]}</span></td><td class="num">${r[5]}</td><td class="num">${r[6]}</td><td><span class="pill ${r[7] === "ok" ? "check" : "caution"}">${r[8]}</span></td></tr>`).join("");
+$("risks").innerHTML = RISKS.map(r => `<li>${r}</li>`).join("");
+$("steps").innerHTML = STEPS.map((s, i) => `<li><button type="button" data-i="${i}"><span class="n">${i ? String(i).padStart(2, "0") : "··"}</span><h3>${s.t}</h3><div class="body">${s.h}</div></button></li>`).join("");
+
+let step = 0, xray = false;
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+function go(i) {
+  step = Math.max(0, Math.min(STEPS.length - 1, i));
+  [...$("steps").children].forEach((li, k) => li.classList.toggle("on", k === step));
+  $("count").textContent = step ? `step ${step} of ${STEPS.length - 1}` : "overview";
+  $("prev").disabled = step === 0; $("next").disabled = step === STEPS.length - 1;
+  setX(!!STEPS[step].xray);
+}
+function setX(v) { xray = v; $("xray").setAttribute("aria-pressed", v); }
+$("steps").addEventListener("click", e => { const b = e.target.closest("button"); if (b) go(+b.dataset.i); });
+$("prev").onclick = () => go(step - 1); $("next").onclick = () => go(step + 1);
+$("xray").onclick = () => setX(!xray);
+go(0);
+
+// ---- 3D bench ----
+(function () {
+  if (!window.THREE || !THREE.STLLoader) { $("note").textContent = "3D view unavailable (viewer library did not load). The steps still work."; return; }
+  const canvas = $("view"), C = new THREE.Vector3(29, 39, 9);
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(32, 4 / 3, 1, 2000);
+  cam.up.set(0, 0, 1);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x55606a, 0.85));
+  const sun = new THREE.DirectionalLight(0xffffff, 0.7); scene.add(sun);
+  const ctl = new THREE.OrbitControls(cam, canvas); ctl.target.copy(C); ctl.enablePan = false; ctl.minDistance = 90; ctl.maxDistance = 520;
+  const CAMS = { front: [-70, -150, 190], top: [-20, -70, 250], spine: [-150, -110, 170], back: [90, -130, -190] };
+  const camGoal = new THREE.Vector3(); let camMoving = true;
+  ctl.addEventListener("start", () => camMoving = false);
+
+  const COL = { body: 0x3b7d9e, lid: 0x4e94b6, r1: 0xf04e12, ring: 0x9aa3a8, coil: 0xc98a3c, plug: 0x2f9e5b, rx: 0x2f9e5b, puck: 0xe9edf0 };
+  const parts = {}; let last = -1, lastX = null;
+  const add = (name, geo) => { geo.computeVertexNormals();
+    const m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: COL[name], roughness: 0.62, metalness: name === "ring" ? 0.6 : 0.05, transparent: true }));
+    m.userData.goal = new THREE.Vector3(); m.userData.show = 1; scene.add(m); parts[name] = m; apply(true); m.position.copy(m.userData.goal); m.material.opacity = m.userData.show; };
+  const loader = new THREE.STLLoader(); let failed = 0;
+  const fetchPart = (n, tries) => loader.load("models/" + n + ".stl.txt", g => add(n, g), undefined, () => {
+    if (tries) return setTimeout(() => fetchPart(n, tries - 1), 700); // one retry rides out a dropped request
+    if (!failed++) $("note").textContent = "Some 3D models did not load. Reload the page to try again; the steps still work."; });
+  ["body", "lid", "r1", "ring", "coil", "plug", "rx"].forEach(n => fetchPart(n, 1));
+  const puck = new THREE.CylinderGeometry(28, 28, 5.5, 64); puck.rotateX(Math.PI / 2); puck.translate(29, 39, -2.75); add("puck", puck);
+
+  function apply(force) {
+    if (!force && last === step && lastX === xray) return;
+    if (last !== step) { camGoal.set(...CAMS[STEPS[step].cam]).add(C); camMoving = true; }
+    last = step; lastX = xray;
+    const s = STEPS[step];
+    for (const n in parts) { const p = parts[n], o = s.off[n] || [0, 0, 0];
+      const hidden = s.hide.includes(n);
+      p.userData.goal.set(...(hidden && n === "puck" ? [0, 0, -45] : o));
+      p.userData.show = hidden ? 0 : ((n === "body" || n === "lid") && xray ? 0.28 : 1); }
+  }
+  function frame() {
+    apply(false);
+    const k = reduce ? 1 : 0.12;
+    for (const n in parts) { const p = parts[n];
+      p.position.lerp(p.userData.goal, k);
+      p.material.opacity += (p.userData.show - p.material.opacity) * (reduce ? 1 : 0.18);
+      p.visible = p.material.opacity > 0.02; p.material.depthWrite = p.material.opacity > 0.9; }
+    if (camMoving) { cam.position.lerp(camGoal, k); if (cam.position.distanceTo(camGoal) < 0.5) camMoving = false; }
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    if (canvas.width !== Math.round(w * renderer.getPixelRatio())) { renderer.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); }
+    sun.position.copy(cam.position).add(new THREE.Vector3(40, -30, 80));
+    ctl.update(); renderer.render(scene, cam); requestAnimationFrame(frame);
+  }
+  cam.position.set(...CAMS.front).add(C); frame();
+})();
+</script>
