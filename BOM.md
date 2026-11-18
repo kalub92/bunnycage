@@ -23,4 +23,4 @@ Also needed, not sourced: soldering iron, about 15 cm of 28–30 AWG hook-up wir
 - No verified in-stock magnet ring thinner than 1.5 mm was found. The pocket is sized for 1.5 mm.
 - Also rejected: Nillkin Magic Tag Type-C Short (82 × 48 mm, too long), Tinkersphere USB-C patch (106 mm, pre-order).
 - Side socket added 18 Nov 2026: the blue female board is wired V/D+/D−/G straight to the green plug board. It has no CC resistors or CC pads, so it works with USB-A-to-C cables only (no C-to-C, no PD).
-- USB-C boards measured by the owner on 18 Nov 2026: neither has a collar usefully wider than its metal shell, so the print backs each board at its tail (lid gates) and a drop of glue resists pull-out. Overall lengths (`m_len` 16.0, `f_len` 14.6) are still the listing values.
+- USB-C boards measured by the owner on 18 Nov 2026: neither has a collar usefully wider than its metal shell, so the print backs each board at its tail (lid gates) and a drop of glue resists pull-out. Overall lengths (`m_len` 16.0, `f_len` 14.6) are the listing values; the owner's port-test print confirmed both boards and the lid gates fit (18 Nov 2026).

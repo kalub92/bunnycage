@@ -69,11 +69,11 @@ m_shell = [8.25, 2.4];     // male plug metal shell: width, height (USB-C standa
 m_shell_len = 9.0;         // male: exposed metal, collar to tip (measured)
 m_col = [8.33, 2.66];      // male black collar: width, height (measured)
 m_pcb = [7.5, 0.8];        // male board: width (measured), thickness (assumed)
-m_len = 16.0;              // male: overall length, plug tip to board tail. LISTING VALUE: measure
+m_len = 16.0;              // male: overall length, plug tip to board tail (listing value; fit confirmed by the owner's port-test print, 18 Nov 2026)
 m_mate = 6.3;              // how deep the plug sits in the r1's port. r1 won't click home: lower it. Flaky contact: raise it
 f_shell = [8.94, 3.26];    // female receptacle metal shell: width, height (USB-C standard; owner read 9 x 3)
 f_pcb = [8.5, 0.8];        // female board: width (measured), thickness (assumed)
-f_len = 14.6;              // female: overall length, mouth to board tail. LISTING VALUE: measure
+f_len = 14.6;              // female: overall length, mouth to board tail (listing value; fit confirmed by the port-test print)
 f_sleeve = 4.5;            // length of the tunnel that holds the female shell (outer wall included)
 f_recess = 0;              // 0 = receptacle mouth flush with the outer wall; raise to sink it in
 fport_y = 63;              // female port position along the left edge (must clear the receiver board, which ends at y = 54)
