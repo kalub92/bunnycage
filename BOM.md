@@ -10,7 +10,6 @@ Prices and stock as seen 2026-11-16. Interactive build guide: see `guide/index.h
 | 4 | Filament | 29 g (sliced) | Polymaker PolyLite PETG grey 1.75 mm, 1 kg | MatterHackers | 1.75 mm | $19.99 | https://matterhackers.com/store/l/polymaker-polylite-petg-grey-175mm-1kg/sk/MUR5Z8PG | Live, in stock |
 | 5 | Adhesive sheet | 1 | 3M 468MP transfer adhesive 305 × 305 mm | Spool3D (Canada) | 0.13 mm | CA$8.00 | https://spool3d.ca/3m-468mp-adhesive-sheet-305mm-x-305mm/ | Live, 18 in stock; ships from Canada |
 | 6 | Kapton tape | 1 | Polyimide tape 10 mm × 33 yd | ProtoSupplies | 10 mm | $1.95 | https://protosupplies.com/product/polyimide-kapton-tape-10mm-x-33yds/ | Live, 5 in stock |
-| 7 | CC resistor | 0 or 1 | Fallback only. 56 kΩ ¼ W resistor, Stackpole CFM14JT56K0 (any 56 kΩ works). The ANMBEST plug board has no CC pad and is assumed (not yet measured) to carry a 56 kΩ CC-to-VBUS resistor already (R1 or R3). Needed only if it carries 5.1 kΩ instead | DigiKey | axial | ≈ $0.10 | https://www.digikey.com/en/products/detail/stackpole-electronics-inc/CFM14JT56K0/1742250 | From search results; DigiKey blocks automated fetches, not fetched |
 
 Charging hardware (rows 1–3): about **$42** ($9.99 + $24.99 + $7.49). Everything: about **$72** before shipping.
 
@@ -18,7 +17,7 @@ Also needed, not sourced: soldering iron, hot glue or CA glue, a MagSafe / Qi2 c
 
 ## Sourcing notes
 - Receiver and plug board were chosen by the owner on 16 Nov 2026, replacing Adafruit 1901 and Adafruit 5978. Those still fit the case if the Amazon parts disappoint (the 5978 needs its 5.1 kΩ CC resistor removed).
-- No finished USB-C Qi receiver patch shorter than 82 mm was found, so the design uses a bare receiver module plus a plug board (5V→V pad, GND→G pad; CC resistor per row 7).
+- No finished USB-C Qi receiver patch shorter than 82 mm was found, so the design uses a bare receiver module plus a plug board (5V→V pad, GND→G pad). The ANMBEST plug board has no CC pad but ships with two 56 kΩ resistors fitted (measured on receipt, 17 Nov 2026), so no CC resistor needs adding.
 - Rejected after review: DFRobot DFR0362. Its product photo shows an XKT-412 resonant transmitter/receiver pair, not a Qi receiver, so a MagSafe or Qi charger would not power it.
 - No verified in-stock magnet ring thinner than 1.5 mm was found. The pocket is sized for 1.5 mm.
 - Also rejected: Nillkin Magic Tag Type-C Short (82 × 48 mm, too long), Tinkersphere USB-C patch (106 mm, pre-order).
