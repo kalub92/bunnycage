@@ -3,7 +3,7 @@
 set -e
 cd "$(dirname "$0")/.."
 mkdir -p stl guide/models
-for p in body lid fit_test port_test; do
+for p in body lid cap fit_test port_test; do
   openscad -q -D "part=\"$p\"" -o "stl/bunnycage_$p.stl" cad/bunnycage.scad &
 done
 for p in lid r1 ring coil plug jack rx; do
@@ -11,12 +11,12 @@ for p in lid r1 ring coil plug jack rx; do
 done
 wait
 cp stl/bunnycage_body.stl guide/models/body.stl
+cp stl/bunnycage_cap.stl guide/models/cap.stl
 # the guide is published as an Artifact, which only serves text files under a .txt name
 for f in guide/models/*.stl; do mv "$f" "$f.txt"; done
 # Check: the printed parts must not intersect the device or any component.
-# detent_pre=-0.2 flattens the corner detents, which press on the device on purpose.
 # Touching faces give vertices but zero facets; any real overlap gives facets.
-if openscad -D 'part="check"' -D 'detent_pre=-0.2' -o stl/.check.stl cad/bunnycage.scad 2>&1 | grep -Eq "Facets: +0$|top level object is empty"; then
+if openscad -D 'part="check"' -o stl/.check.stl cad/bunnycage.scad 2>&1 | grep -Eq "Facets: +0$|top level object is empty"; then
   echo "check OK: no interference"
 else
   echo "check FAILED: parts intersect"; exit 1

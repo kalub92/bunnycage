@@ -3,7 +3,7 @@
 // z up from the case's outer back face (print bed). Units: mm.
 // Render one part:  openscad -D 'part="body"' -o body.stl bunnycage.scad
 
-part = "assembly"; // body | lid | fit_test | port_test | assembly | check | viz_* (see bottom)
+part = "assembly"; // body | lid | cap | fit_test | port_test | assembly | check | viz_* (see bottom)
 
 // ---- Device (rabbit official drawing; verify with calipers) ----
 dev   = 78;     // width = height
@@ -20,9 +20,17 @@ dz     = 0.3;   // extra cavity height over dev_t
 wall   = 2.0;
 lip    = 1.0;   // front lip overhang (45° underside, prints without support)
 cap    = 0.4;   // flat on top of lip
-hook_x = 2.5;   // how far the rails wrap past the right corners
-detent_pre = 0.1; // detent bump presses this far into the seated device corner (snap strength + no rattle)
-detent_len = 1.2; // bump length along x; longer = harder snap
+
+// ---- End cap: closes the right end after the r1 has slid onto the plug ----
+cap_x   = 66;    // joint plane: everything right of this is the cap
+cap_ov  = 11;    // the cap's two arms overlap the outside of the body rails by this much
+arm_t   = 0.9;   // arm thickness (outer skin of the 2 mm rail)
+arm_gap = 0.15;  // clearance between arm and rail
+ridge_h = 0.5;   // snap ridge height on each rail: raise for a firmer click, lower if the cap is hard to pull off
+ridge_back = 8;  // ridge distance from the joint plane (the arm flexes over this length)
+ledge_r = 1.2;   // back ledge under the r1's right edge
+ptt   = [18, 8]; // side (PTT) button opening in the cap: length along the edge, height. Mock button is 6.5 dia: verify on your r1
+ptt_y = port_y;  // button centre along the right edge
 ledge  = 1.7;   // back ledge width under the rail fingers
 
 // ---- Charging hardware ----
@@ -88,7 +96,6 @@ win_w = 2 * crad_w(m_hw);                  // shelf width under the male board
 shelf_top = m_z - m_zb;
 xl  = -clr - wall - spine_in - wall;       // outer left
 xr  = dev + clr + wall;                    // outer right (before the end cut)
-x_end   = dev - dev_r + hook_x;            // rails stop here; device slides in from the right
 back_end = col_x - 0.8;                    // back plate stops before the right column
 $fn = 72;
 
@@ -104,10 +111,6 @@ module outer2d() {
   }
 }
 module spine2d() { rr(xl + wall, -clr, -clr - wall, dev + clr, 4); }
-module detent2d() for (yc = [dev_r, dev - dev_r]) intersection() {
-  translate([dev - dev_r, yc]) difference() { circle(dev_r + clr + 0.3); circle(dev_r - detent_pre, $fn = 160); }
-  translate([dev - dev_r + 0.5, yc > dev / 2 ? yc : yc - 20]) square([detent_len, 20]);
-}
 
 // ---- Connector cradles. Local frame: origin at the board's tail on the connector centreline, +x toward the mouth ----
 module male_at()   translate([m_xt, port_y, m_z]) children();
@@ -150,9 +153,8 @@ module gates() {
   translate([m_xcf - 1.5, port_y - m_hw + 0.4, m_z + m_col[1] / 2 + 0.2]) cube([1.2, 2 * (m_hw - 0.4), H - lid_t - m_z - m_col[1] / 2 - 0.19]);
 }
 
-module body() {
+module shell() { // the whole case as one piece; body() and cap() are cut from it
   disc();
-  translate([0, 0, bt]) linear_extrude(H - bt) detent2d();
   difference() {
     linear_extrude(H) outer2d();
     // device cavity + chamfered front lip
@@ -162,10 +164,10 @@ module body() {
       translate([0, 0, lip]) linear_extrude(0.01) offset(delta = -lip) cav2d();
     }
     translate([0, 0, bt + dev_t + dz + lip - 0.02]) linear_extrude(cap + 1) offset(delta = -lip) cav2d();
-    // open right end: device slides in from here; rails wrap the corners as detents
-    translate([x_end, -50, -1]) cube([100, 200, H + 2]);
+    // side button opening in the right wall
+    translate([dev - 1, ptt_y, bt + dev_t / 2]) pill_x(ptt[0], ptt[1], wall + 3);
     // right column (eye, wheel, speaker) stays exposed on the back, minus rail ledges
-    translate([back_end, -clr + ledge, -1]) cube([100, dev + 2 * clr - 2 * ledge, bt + 1]);
+    translate([back_end, -clr + ledge, -1]) cube([dev + clr - ledge_r - back_end, dev + 2 * clr - 2 * ledge, bt + 1]);
     // magnet ring pocket (full depth so the ring drops in) + receiver panel recess resting on the ring
     translate([ring_c[0], ring_c[1], skin]) cylinder(d = ring_od + ring_fit, h = bt, $fn = 120);
     translate([ring_c[0] - (panel[0] + panel_fit) / 2, ring_c[1] - (panel[1] + panel_fit) / 2, skin + ring_t + 0.1])
@@ -186,6 +188,18 @@ module body() {
   }
 }
 
+module arm_zone(g) for (s = [0, 1]) // outer skin of both rails where the cap arms lie
+  translate([cap_x - cap_ov - g, s ? dev + clr + wall - arm_t - g : -clr - wall - 1, -1]) cube([cap_ov + g + 0.01, arm_t + g + 1, H + 2]);
+x_ridge = cap_x - ridge_back;
+module ridge2d() polygon([[x_ridge + 1.73 * ridge_h, -0.2], [x_ridge + 1.73 * ridge_h, 0], [x_ridge, ridge_h], [x_ridge - ridge_h, 0], [x_ridge - ridge_h, -0.2]]); // gentle side leads the arm on, 45 deg side holds it
+module body() {
+  difference() { shell(); translate([cap_x, -50, -1]) cube([100, 200, H + 2]); arm_zone(arm_gap); }
+  for (s = [0, 1]) translate([0, s ? dev + clr + wall - arm_t - arm_gap : -clr - wall + arm_t + arm_gap, 4]) mirror([0, s ? 0 : 1, 0]) linear_extrude(H - 8) ridge2d();
+}
+module cap() difference() {
+  intersection() { shell(); union() { translate([cap_x, -50, -1]) cube([100, 200, H + 2]); arm_zone(0); } }
+  translate([x_ridge - ridge_h - 0.25, -50, 3.5]) cube([2.73 * ridge_h + 0.5, 200, H - 7]); // windows the ridges click into
+}
 module disc() translate([ring_c[0], ring_c[1], skin - 0.1]) cylinder(d = ring_id - disc_fit, h = disc_t + 0.1, $fn = 120); // boss in the ring's hole, part of the body
 
 module lid() { // assembled position; export flipped for printing
@@ -236,8 +250,10 @@ module jack() female_at() {
 module rx_pcb() translate([-12, 20, floor_t]) cube([14, 34, 1.5]); // Qi receiver flex board: slid through the slot, under the plug shelf
 
 if (part == "body") body();
+if (part == "cap") cap();
+if (part == "viz_cap") cap();
 if (part == "lid") translate([0, 0, H]) rotate([180, 0, 0]) lid();
-if (part == "fit_test") difference() { // low frame: checks width, all four corners and the detents
+if (part == "fit_test") difference() { // low frame: checks width, the left corners and the rails
   intersection() { body(); translate([-3, -50, 0]) cube([200, 200, bt + 6]); }
   translate([6, 6, -1]) cube([50, 66, bt + 2]);
 }
@@ -245,7 +261,7 @@ if (part == "port_test") { // spine slice with both cradles + the matching lid s
   intersection() { body(); translate([xl - 1, port_y - 11, -1]) cube([-xl + 2.5, fport_y - port_y + 21, H + 2]); }
   translate([26, 2 * port_y + 16, H]) rotate([180, 0, 0]) intersection() { lid(); translate([xl - 1, port_y - 11, 0]) cube([-xl + 2.5, fport_y - port_y + 21, H + 2]); }
 }
-if (part == "check") intersection() { union() { body(); lid(); } union() { r1(); ring(); coil(); plug(); jack(); rx_pcb(); } }
+if (part == "check") intersection() { union() { body(); lid(); cap(); } union() { r1(); ring(); coil(); plug(); jack(); rx_pcb(); } }
 if (part == "viz_lid") lid();
 if (part == "viz_r1") r1();
 if (part == "viz_ring") ring();
@@ -253,4 +269,4 @@ if (part == "viz_coil") coil();
 if (part == "viz_plug") plug();
 if (part == "viz_jack") jack();
 if (part == "viz_rx") rx_pcb();
-if (part == "assembly") { body(); lid(); color("orangered") r1(); color("silver") ring(); color("peru") coil(); color("green") { plug(); jack(); rx_pcb(); } }
+if (part == "assembly") { body(); lid(); color("steelblue") cap(); color("orangered") r1(); color("silver") ring(); color("peru") coil(); color("green") { plug(); jack(); rx_pcb(); } }
