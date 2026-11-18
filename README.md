@@ -8,3 +8,5 @@ A three-part 3D-printed case that wraps the Rabbit r1, snaps it onto any MagSafe
 - **Print these:** `stl/bunnycage_fit_test.stl` and `stl/bunnycage_port_test.stl` first, then `stl/bunnycage_body.stl`, `stl/bunnycage_lid.stl` and `stl/bunnycage_cap.stl`
 - **Parts:** see `BOM.md`
 - **Change the design:** edit the parameters at the top of `cad/bunnycage.scad`, then run `cad/build.sh` (needs OpenSCAD)
+
+The r1 body, side button and scroll wheel models in `reference/` are by Nawaz (CC0). The CAD imports them for the fit check and the guide's 3D view.

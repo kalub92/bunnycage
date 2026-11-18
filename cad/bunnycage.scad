@@ -29,8 +29,11 @@ arm_gap = 0.15;  // clearance between arm and rail
 ridge_h = 0.5;   // snap ridge height on each rail: raise for a firmer click, lower if the cap is hard to pull off
 ridge_back = 8;  // ridge distance from the joint plane (the arm flexes over this length)
 ledge_r = 1.2;   // back ledge under the r1's right edge
-ptt   = [18, 8]; // side (PTT) button opening in the cap: length along the edge, height. Mock button is 6.5 dia: verify on your r1
-ptt_y = port_y;  // button centre along the right edge
+// Side button, from the reference body STL (reference/Nawaz_RabbitR1Body_CC0.stl): a 6.6 mm round hole in the right edge
+btn   = [46.63, 6.51]; // button centre: y along the right edge, z above the r1's back
+btn_d = 6.2;     // button diameter (reference button STL)
+btn_out = 1.3;   // how far the button stands out of the r1's edge (from the assembled reference model)
+ptt_d = 10;      // round opening in the cap; its outer edge is countersunk so a fingertip reaches the button
 ledge  = 1.7;   // back ledge width under the rail fingers
 
 // ---- Charging hardware ----
@@ -165,7 +168,8 @@ module shell() { // the whole case as one piece; body() and cap() are cut from i
     }
     translate([0, 0, bt + dev_t + dz + lip - 0.02]) linear_extrude(cap + 1) offset(delta = -lip) cav2d();
     // side button opening in the right wall
-    translate([dev - 1, ptt_y, bt + dev_t / 2]) pill_x(ptt[0], ptt[1], wall + 3);
+    translate([dev - 1, btn[0], bt + btn[1]]) rotate([0, 90, 0]) { cylinder(d = ptt_d, h = wall + 3, $fn = 64);
+      translate([0, 0, 1 + clr + wall - 1]) cylinder(d1 = ptt_d, d2 = ptt_d + 2.4, h = 1.2, $fn = 64); }
     // right column (eye, wheel, speaker) stays exposed on the back, minus rail ledges
     translate([back_end, -clr + ledge, -1]) cube([dev + clr - ledge_r - back_end, dev + 2 * clr - 2 * ledge, bt + 1]);
     // magnet ring pocket (full depth so the ring drops in) + receiver panel recess resting on the ring
@@ -217,16 +221,10 @@ module lid() { // assembled position; export flipped for printing
 }
 
 // ---- Mock-ups (viewer + interference check only, never printed) ----
-module r1() translate([0, 0, bt]) {
-  difference() {
-    linear_extrude(dev_t) rr(0, 0, dev, dev, dev_r);
-    translate([0, 0, dev_t - 0.4]) linear_extrude(1) rr(2.5, 2.8, 57.4, 75.4, 5);       // screen
-    translate([0, 0, -1]) linear_extrude(dev_t + 2) rr(60, 60, 75.6, 75.6, 3.5);         // eye window
-    translate([0, 0, -1]) linear_extrude(dev_t + 2) rr(60, 38.5, 75.6, 54.5, 1.8);       // wheel slot
-  }
-  translate([60, 46.5, dev_t / 2]) rotate([0, 90, 0]) cylinder(d = 14.9, h = 15.5);       // wheel (+1 mm proud)
-  translate([60, 67.8, dev_t / 2]) rotate([0, 90, 0]) cylinder(d = 8, h = 15.5);         // eye barrel
-  translate([dev - 1, port_y, dev_t / 2]) rotate([0, 90, 0]) cylinder(d = 6.5, h = 2.5); // PTT button
+module r1() translate([0, 0, bt]) { // reference models by Nawaz (CC0), in reference/
+  import("../reference/Nawaz_RabbitR1Body_CC0.stl", convexity = 10);
+  translate([dev + btn_out - 22, btn[0], btn[1]]) rotate([0, 0, -90]) import("../reference/Nawaz_RabbitR1Button_CC0.stl", convexity = 4); // side button
+  translate([60.06, 46.55, dev_t / 2]) rotate([0, 0, -90]) import("../reference/Nawaz_Knobb_CC0.stl", convexity = 4);                 // scroll wheel, 1 mm proud front and back
 }
 module ring() translate([ring_c[0], ring_c[1], skin]) difference() {
   cylinder(d = 53.9, h = ring_t, $fn = 120); translate([0, 0, -1]) cylinder(d = ring_id, h = ring_t + 2, $fn = 120);

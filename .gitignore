@@ -1,3 +1,7 @@
 .DS_Store
-# third-party models and saved store pages: not ours to redistribute
-reference/
+# third-party models and saved store pages: not ours to redistribute...
+reference/*
+# ...except the CC0 r1 models the CAD imports
+!reference/Nawaz_RabbitR1Body_CC0.stl
+!reference/Nawaz_RabbitR1Button_CC0.stl
+!reference/Nawaz_Knobb_CC0.stl

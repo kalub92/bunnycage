@@ -615,20 +615,6 @@ solid OpenSCAD_Model
       vertex -18.5253 0.227554 3.8147e-07
     endloop
   endfacet
-  facet normal 0.675575 -0.737291 0
-    outer loop
-      vertex -3.21065 -77.7626 3.8147e-07
-      vertex -2.91151 -77.4885 1.6
-      vertex -3.21065 -77.7626 1.6
-    endloop
-  endfacet
-  facet normal 0.675575 -0.737291 0
-    outer loop
-      vertex -2.91151 -77.4885 1.6
-      vertex -3.21065 -77.7626 3.8147e-07
-      vertex -2.91151 -77.4885 3.8147e-07
-    endloop
-  endfacet
   facet normal -0.0436811 -0.999046 0
     outer loop
       vertex -16.6053 -78.8329 3.8147e-07
@@ -3989,18 +3975,18 @@ solid OpenSCAD_Model
       vertex -19.4885 -77.4885 1.6
     endloop
   endfacet
-  facet normal 0.923879 0.382684 0
+  facet normal 0.675575 -0.737291 0
     outer loop
-      vertex -1.82985 -2.20938 1.6
-      vertex -1.98511 -1.83455 3.8147e-07
-      vertex -1.98511 -1.83455 1.6
+      vertex -3.21065 -77.7626 3.8147e-07
+      vertex -2.91151 -77.4885 1.6
+      vertex -3.21065 -77.7626 1.6
     endloop
   endfacet
-  facet normal 0.923879 0.382684 0
+  facet normal 0.675575 -0.737291 0
     outer loop
-      vertex -1.98511 -1.83455 3.8147e-07
-      vertex -1.82985 -2.20938 1.6
-      vertex -1.82985 -2.20938 3.8147e-07
+      vertex -2.91151 -77.4885 1.6
+      vertex -3.21065 -77.7626 3.8147e-07
+      vertex -2.91151 -77.4885 3.8147e-07
     endloop
   endfacet
   facet normal -0.886962 -0.461842 0
@@ -4099,6 +4085,20 @@ solid OpenSCAD_Model
       vertex -5.39243 0.779953 1.6
       vertex -4.99634 0.692139 3.8147e-07
       vertex -5.39243 0.779953 3.8147e-07
+    endloop
+  endfacet
+  facet normal 0.923879 0.382684 0
+    outer loop
+      vertex -1.82985 -2.20938 1.6
+      vertex -1.98511 -1.83455 3.8147e-07
+      vertex -1.98511 -1.83455 1.6
+    endloop
+  endfacet
+  facet normal 0.923879 0.382684 0
+    outer loop
+      vertex -1.98511 -1.83455 3.8147e-07
+      vertex -1.82985 -2.20938 1.6
+      vertex -1.82985 -2.20938 3.8147e-07
     endloop
   endfacet
   facet normal 0.737283 0.675584 0
