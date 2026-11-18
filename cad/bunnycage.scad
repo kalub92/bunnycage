@@ -9,7 +9,7 @@ part = "assembly"; // body | lid | cap | fit_test | port_test | assembly | check
 dev   = 78;     // width = height
 dev_t = 13;     // thickness
 dev_r = 7.5;    // plan corner radius (community STEP says 5.9)
-port_y = 78 - 31.6; // USB-C centre, left edge
+port_y = 51.06;     // USB-C centre, left edge: 26.94 mm below the top edge (reference body model; the first print at 31.6 sat too low)
 port_z = 6.6;       // USB-C centre above device back
 mic_x  = [78 - 26.6, 78 - 51.6]; // top-edge mics
 col_x  = 60;    // right column (eye / wheel / speaker) starts here
@@ -76,7 +76,7 @@ f_pcb = [8.5, 0.8];        // female board: width (measured), thickness (assumed
 f_len = 14.6;              // female: overall length, mouth to board tail (listing value; fit confirmed by the port-test print)
 f_sleeve = 4.5;            // length of the tunnel that holds the female shell (outer wall included)
 f_recess = 0;              // 0 = receptacle mouth flush with the outer wall; raise to sink it in
-fport_y = 63;              // female port position along the left edge (must clear the receiver board, which ends at y = 54)
+fport_y = 67.5;              // female port position along the left edge (must clear the receiver board, which ends at y = 54)
 hole_fit = 0.25;           // added to shell width and height for the pill-shaped holes; lower for a tighter grip
 col_fit  = 0.15;           // clearance each side of the board in its channel
 gate_t = 2.0; gate_ear = 2.5; // lid gate: thickness, and how far each leg reaches into its groove

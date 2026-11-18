@@ -151,7 +151,8 @@ td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-spa
         <tr><td>r1 will not click home on the plug</td><td>lower <code>m_mate</code> (6.3)</td></tr>
         <tr><td>Charging or data drops out with the r1 seated</td><td>raise <code>m_mate</code></td></tr>
         <tr><td>Sink the socket mouth below the surface</td><td><code>f_recess</code> (0)</td></tr>
-        <tr><td>Move the socket along the edge</td><td><code>fport_y</code> (63)</td></tr>
+        <tr><td>Move the plug along the edge</td><td><code>port_y</code> (51.06)</td></tr>
+        <tr><td>Move the socket along the edge</td><td><code>fport_y</code> (67.5)</td></tr>
         <tr><td>Lid is loose or will not press in</td><td><code>rib</code> (0.15)</td></tr>
       </table></div>
     </section></div>
@@ -186,7 +187,7 @@ const RISKS = [
   "<strong>The receiver is an unbranded module.</strong> The listing says Qi but names no chip. Confirm it charges on your MagSafe charger at step 5 before gluing.",
   "<strong>The SIM tray is covered</strong> by the spine wall. Pull the end cap off and slide the r1 out to reach it.",
   "<strong>The side button opening comes from a community model, not a real r1.</strong> The reference body (Nawaz, CC0) has a round 6.2 mm button centred on the scroll wheel; the cap has a 10 mm countersunk hole over it, and the button sits about 0.9 mm below the cap's surface. Check it on the printed cap.",
-  "<strong>The USB-C port position is disputed.</strong> The case puts the port 31.6 mm below the r1's top edge (rabbit's drawing). The reference body model puts it 26.9 mm below. Measure your r1 before printing: the plug has to line up within a few tenths.",
+  "<strong>The plug position was moved once.</strong> The first print (31.6 mm below the r1's top edge, from rabbit's drawing) put the plug too low. It now sits 26.9 mm below the top edge, matching the reference body model. Not yet confirmed by a second print: if it is still off, change <code>port_y</code>.",
   "<strong>The end cap is a friction snap.</strong> Two 0.9 mm arms click over 0.5 mm ridges; it has not been printed, so the pull-off force is a guess. The USB-C plug also holds the r1 in.",
   "<strong>The ring sits 10 mm left of the r1's centre</strong> so its magnets stay clear of the scroll wheel's Hall sensor. It lands on the centre of the whole case. If scrolling misbehaves in the case, the magnets are the first suspect.",
   "<strong>The r1 has a magnetometer.</strong> Expect the compass to read wrong inside the case.",
