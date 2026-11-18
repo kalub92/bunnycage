@@ -10,7 +10,7 @@ Prices and stock as seen 2026-11-16. Interactive build guide: see `guide/index.h
 | 4 | Filament | 29 g (sliced) | Polymaker PolyLite PETG grey 1.75 mm, 1 kg | MatterHackers | 1.75 mm | $19.99 | https://matterhackers.com/store/l/polymaker-polylite-petg-grey-175mm-1kg/sk/MUR5Z8PG | Live, in stock |
 | 5 | Adhesive sheet | 1 | 3M 468MP transfer adhesive 305 × 305 mm | Spool3D (Canada) | 0.13 mm | CA$8.00 | https://spool3d.ca/3m-468mp-adhesive-sheet-305mm-x-305mm/ | Live, 18 in stock; ships from Canada |
 | 6 | Kapton tape | 1 | Polyimide tape 10 mm × 33 yd | ProtoSupplies | 10 mm | $1.95 | https://protosupplies.com/product/polyimide-kapton-tape-10mm-x-33yds/ | Live, 5 in stock |
-| 7 | Schottky diode | 1 | 1N5817 (or any 1 A+ Schottky, e.g. SS14), in the receiver's red wire so cable power cannot flow back into the receiver | DigiKey | DO-41, 5 × 2.7 mm | ≈ $0.40 | https://www.digikey.com/en/products/result?keywords=1N5817 | Search link, not fetched |
+| 7 | Schottky diode | 2 | 1N5817 (or any 1 A+ Schottky, e.g. SS14). One in the receiver's red wire, one in the socket's V wire, stripes toward the plug board's V pad, so neither power source can feed the other | DigiKey | DO-41, 5 × 2.7 mm | ≈ $0.40 | https://www.digikey.com/en/products/result?keywords=1N5817 | Search link, not fetched |
 
 Charging hardware (rows 1–3): about **$42** ($9.99 + $24.99 + $7.49). Everything: about **$72** before shipping.
 
