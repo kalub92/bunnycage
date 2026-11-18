@@ -14,7 +14,7 @@ Prices and stock as seen 2026-11-16. Interactive build guide: see `guide/index.h
 
 Charging hardware (rows 1–3): about **$42** ($9.99 + $24.99 + $7.49). Everything: about **$72** before shipping.
 
-Also needed, not sourced: soldering iron, about 15 cm of 28–30 AWG hook-up wire, heat-shrink, a USB-A-to-C cable, a MagSafe / Qi2 charger.
+Also needed, not sourced: soldering iron, about 15 cm of 28–30 AWG hook-up wire, heat-shrink, CA or hot glue, a USB-A-to-C cable, a MagSafe / Qi2 charger.
 
 ## Sourcing notes
 - Receiver and plug board were chosen by the owner on 16 Nov 2026, replacing Adafruit 1901 and Adafruit 5978. Those still fit the case if the Amazon parts disappoint (the 5978 needs its 5.1 kΩ CC resistor removed).
@@ -23,4 +23,4 @@ Also needed, not sourced: soldering iron, about 15 cm of 28–30 AWG hook-up wir
 - No verified in-stock magnet ring thinner than 1.5 mm was found. The pocket is sized for 1.5 mm.
 - Also rejected: Nillkin Magic Tag Type-C Short (82 × 48 mm, too long), Tinkersphere USB-C patch (106 mm, pre-order).
 - Side socket added 18 Nov 2026: the blue female board is wired V/D+/D−/G straight to the green plug board. It has no CC resistors or CC pads, so it works with USB-A-to-C cables only (no C-to-C, no PD).
-- The USB-C board sizes in `cad/bunnycage.scad` (`m_*`, `f_*`) are estimates from the listing photos, not yet measured.
+- USB-C boards measured by the owner on 18 Nov 2026: neither has a collar usefully wider than its metal shell, so the print backs each board at its tail (lid gates) and a drop of glue resists pull-out. Overall lengths (`m_len` 16.0, `f_len` 14.6) are still the listing values.

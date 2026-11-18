@@ -49,39 +49,43 @@ ring_fit = 0.8; // diametral clearance on the pocket
 spine_in = 18;  // inner depth
 floor_t  = 1.2;
 
-// ---- USB-C boards (ANMBEST 4-pad breakouts). ESTIMATES from the listing photos: measure yours ----
-// Each board slides into its hole from inside the spine until its black collar stops against the print.
-// Pressing the lid on drops a gate behind each collar (into grooves in the cradle) and a foot on top of it.
-m_shell = [8.3, 2.5];      // male plug metal shell: width, height
-m_shell_len = 9.0;         // male: exposed metal from collar face to tip
-m_col = [9.4, 3.4, 1.5];   // male black collar: width, height, thickness along the plug
-m_pcb = [8.6, 0.8, 5.5];   // male board: width, thickness, length behind the collar
-m_pcb_dz = 0;              // male board centre above (+) / below (-) the plug centreline
+// ---- USB-C boards (ANMBEST 4-pad breakouts) ----
+// Nothing on either board is usefully wider than its metal shell (owner's measurements, 18 Nov 2026), so there is
+// no collar to stop on. Each board slides into its pill hole from inside the spine; pressing the lid on drops a
+// gate into grooves behind the board's TAIL, which is what stops it being pushed back in. Pulling out is resisted
+// only by the snug hole: add a drop of glue under each board.
+m_shell = [8.25, 2.4];     // male plug metal shell: width, height (USB-C standard; owner read 8 x 2)
+m_shell_len = 9.0;         // male: exposed metal, collar to tip (measured)
+m_col = [8.33, 2.66];      // male black collar: width, height (measured)
+m_pcb = [7.5, 0.8];        // male board: width (measured), thickness (assumed)
+m_len = 16.0;              // male: overall length, plug tip to board tail. LISTING VALUE: measure
 m_mate = 6.3;              // how deep the plug sits in the r1's port. r1 won't click home: lower it. Flaky contact: raise it
-f_shell = [8.94, 3.26];    // female receptacle metal shell: width, height
-f_shell_len = 7.2;         // female: exposed metal from collar face to mouth
-f_col = [10.0, 4.2, 1.6];  // female black collar: width, height, thickness
-f_pcb = [9.8, 0.8, 5.8];   // female board: width, thickness, length behind the collar
-f_pcb_dz = 0;              // female board centre above / below the receptacle centreline
+f_shell = [8.94, 3.26];    // female receptacle metal shell: width, height (USB-C standard; owner read 9 x 3)
+f_pcb = [8.5, 0.8];        // female board: width (measured), thickness (assumed)
+f_len = 14.6;              // female: overall length, mouth to board tail. LISTING VALUE: measure
+f_sleeve = 4.5;            // length of the tunnel that holds the female shell (outer wall included)
 f_recess = 0;              // 0 = receptacle mouth flush with the outer wall; raise to sink it in
 fport_y = 63;              // female port position along the left edge (must clear the receiver board, which ends at y = 54)
-hole_fit = 0.3;            // added to shell width and height for the pill-shaped holes
-col_fit  = 0.15;           // clearance each side of collar / board in its channel
-gate_t = 2.0; gate_ear = 1.5; // lid gate: thickness, and how far each end reaches into its groove
+hole_fit = 0.25;           // added to shell width and height for the pill-shaped holes; lower for a tighter grip
+col_fit  = 0.15;           // clearance each side of the board in its channel
+gate_t = 2.0; gate_ear = 2.5; // lid gate: thickness, and how far each leg reaches into its groove
 lid_t = 1.6; lid_rebate = 0.8; lid_clr = 0.15; skirt_h = 4; skirt_fit = 0.12;
 rib = 0.15;     // lid crush-rib interference; raise if the lid is loose
 
 H   = bt + dev_t + dz + lip + cap;
 m_z   = bt + port_z;                       // male plug centreline
 f_z   = H / 2;                             // female port centred on the case edge
-m_xcf = m_mate - m_shell_len;              // male collar front face (world x)
+m_xt  = m_mate - m_len;                    // male board tail (world x)
+m_xcf = m_mate - m_shell_len;              // male collar front face (world x); must stay inside the spine
 m_hw  = max(m_col[0], m_pcb[0]) / 2 + col_fit;
-f_hw  = max(f_col[0], f_pcb[0]) / 2 + col_fit;
-crad_top = H - lid_t - 1.2;                // top of the cradle cheeks
-function crad_back(c) = c[2] + 0.15 + gate_t + 0.25 + 1.6; // cradle length behind the collar front
-function crad_w(hw) = hw + gate_ear + 1.4;                 // cradle half-width
+f_hw  = max(f_shell[0], f_pcb[0]) / 2 + col_fit;
+m_zb  = m_col[1] / 2 + 0.1;                // channel floor below the centreline: the male collar rests on it
+f_zb  = f_shell[1] / 2 + 0.15;
+crad_h = 3.5;                              // cradle cheeks rise this far above the centreline; wires run over them
+crad_back = 0.15 + gate_t + 0.2 + 1.4;     // cradle length behind the board tail
+function crad_w(hw) = hw + gate_ear + 1.2; // cradle half-width
 win_w = 2 * crad_w(m_hw);                  // shelf width under the male board
-shelf_top = m_z - m_col[1] / 2 - 0.1;      // the male collar rests on the shelf
+shelf_top = m_z - m_zb;
 xl  = -clr - wall - spine_in - wall;       // outer left
 xr  = dev + clr + wall;                    // outer right (before the end cut)
 x_end   = dev - dev_r + hook_x;            // rails stop here; device slides in from the right
@@ -105,44 +109,45 @@ module detent2d() for (yc = [dev_r, dev - dev_r]) intersection() {
   translate([dev - dev_r + 0.5, yc > dev / 2 ? yc : yc - 20]) square([detent_len, 20]);
 }
 
-// ---- Connector cradles. Local frame: origin at the collar's front face on the connector centreline, +x toward the mouth ----
-module male_at()   translate([m_xcf, port_y, m_z]) children();
-module female_at() translate([xl + f_recess + f_shell_len, fport_y, f_z]) mirror([1, 0, 0]) children();
+// ---- Connector cradles. Local frame: origin at the board's tail on the connector centreline, +x toward the mouth ----
+module male_at()   translate([m_xt, port_y, m_z]) children();
+module female_at() translate([xl + f_recess + f_len, fport_y, f_z]) mirror([1, 0, 0]) children();
 module pill_x(w, h, len) hull() for (s = [-1, 1]) translate([0, s * (w - h) / 2, 0]) rotate([0, 90, 0]) cylinder(d = h, h = len, $fn = 48);
-module cr_cheeks(c, hw, zc, fwd) // tall block either side of the board; the gate grooves are cut into it
-  translate([-crad_back(c), -crad_w(hw), -c[1] / 2 - 0.1]) cube([crad_back(c) + fwd, 2 * crad_w(hw), crad_top - zc + c[1] / 2 + 0.1]);
-module cr_cuts(sh, c, hw, hole_len, setback) {
-  translate([-0.01, 0, 0]) pill_x(sh[0] + hole_fit, sh[1] + hole_fit, hole_len);                         // pill hole for the metal shell
-  translate([-crad_back(c) - 1, -hw, -c[1] / 2 - 0.1]) cube([crad_back(c) + 1, 2 * hw, c[1] + 0.35]);       // collar + board channel
-  translate([-crad_back(c) - 1, -hw, 0]) cube([crad_back(c) + 1 - setback, 2 * hw, 50]);                  // open above for the lid foot and wires
-  translate([-c[2] - 0.15 - gate_t - 0.2, -hw - gate_ear, -c[1] / 2 - 0.1]) cube([gate_t + 0.4, 2 * (hw + gate_ear), 50]); // gate grooves
+module cr_cheeks(hw, zb, front) translate([-crad_back, -crad_w(hw), -zb]) cube([crad_back + front, 2 * crad_w(hw), zb + crad_h]);
+module cr_cuts(sh, hw, zb, front, hole_len) {
+  translate([front - 0.01, 0, 0]) pill_x(sh[0] + hole_fit, sh[1] + hole_fit, hole_len);       // pill hole for the metal shell
+  translate([-crad_back - 1, -hw, -zb]) cube([crad_back + 1 + front, 2 * hw, 50]);              // board channel, open above
+  translate([-0.15 - gate_t - 0.2, -hw - gate_ear, -zb]) cube([gate_t + 0.4, 2 * (hw + gate_ear), 50]); // gate grooves
 }
-module cr_gate(c, pcb, pdz, hw, zc, setback) { // hangs from the lid
-  zl = H - lid_t - zc + 0.01; x0 = -c[2] - 0.15 - gate_t; zp = pdz + pcb[1] / 2 + 0.6;
-  translate([x0, -hw - gate_ear + 0.25, zp]) cube([gate_t, 2 * (hw + gate_ear - 0.25), zl - zp]);           // gate: bears on the collar above the board
-  for (s = [-1, 1]) translate([x0, s > 0 ? hw + 0.25 : -hw - gate_ear + 0.25, -c[1] / 2 + 0.4]) cube([gate_t, gate_ear - 0.5, zl + c[1] / 2 - 0.4]); // ears in the grooves
-  if (c[2] - 0.1 - setback > 0.4) translate([x0, -hw + 0.4, c[1] / 2 + 0.2]) cube([gate_t + c[2] - 0.1 - setback, 2 * (hw - 0.4), zl - c[1] / 2 - 0.2]); // foot on top of the collar
+module cr_gate(hw, zb, pt, zc) { // hangs from the lid, just behind the board tail
+  zl = H - lid_t - zc + 0.01; x0 = -0.15 - gate_t; w = hw + gate_ear - 0.25;
+  for (s = [-1, 1]) translate([x0, s > 0 ? hw + 0.25 : -w, -zb + 0.4]) cube([gate_t, gate_ear - 0.5, zl + zb - 0.4]); // legs in the grooves
+  translate([x0, -w, -zb + 0.4]) cube([gate_t, 2 * w, zb - 0.4 + pt / 2]);  // crossbar: the board tail backs onto this
+  translate([x0, -w, pt / 2 + 2.6]) cube([gate_t, 2 * w, zl - pt / 2 - 2.6]); // top plate; the gap under it is the wire window
 }
-m_setback = max(0, m_xcf + clr + wall); // collar pocket sunk into the inner wall (only if the shell is short)
+m_front = -clr - wall - m_xt;      // male channel runs from the tail to the inner wall
+f_front = f_len - f_sleeve;        // female channel runs from the tail to the sleeve
 module spine_keep() { // solid left standing inside the spine cavity
   difference() { // male shelf, hollow underneath for the receiver board
     translate([xl + wall - 1, port_y - win_w / 2, 0]) cube([spine_in + 2, win_w, shelf_top]);
     translate([rx_x0, port_y - win_w / 2 - 1, -1]) cube([100, win_w + 2, shelf_top - shelf_t + 1]);
   }
-  male_at() cr_cheeks(m_col, m_hw, m_z, -clr - wall + 0.3 - m_xcf);
+  male_at() cr_cheeks(m_hw, m_zb, m_front + 0.3);
   female_at() {
-    cr_cheeks(f_col, f_hw, f_z, 0);
-    translate([-crad_back(f_col), -crad_w(f_hw), -f_z]) // pedestal + sleeve, floor to just under the lid skirt
-      cube([crad_back(f_col) + f_shell_len + f_recess - wall + 0.5, 2 * crad_w(f_hw), f_z + f_shell[1] / 2 + hole_fit / 2 + 1.2]);
+    cr_cheeks(f_hw, f_zb, f_front);
+    translate([-crad_back, -crad_w(f_hw), -f_z]) // pedestal + sleeve, floor to just under the lid skirt
+      cube([crad_back + f_len + f_recess - wall + 0.5, 2 * crad_w(f_hw), f_z + f_shell[1] / 2 + hole_fit / 2 + 1.2]);
   }
 }
 module port_cuts() {
-  male_at()   cr_cuts(m_shell, m_col, m_hw, -m_xcf + 1, m_setback);
-  female_at() cr_cuts(f_shell, f_col, f_hw, f_shell_len + f_recess + 1, 0);
+  male_at()   cr_cuts(m_shell, m_hw, m_zb, m_front, wall + clr + 1);
+  female_at() cr_cuts(f_shell, f_hw, f_zb, f_front, f_sleeve + f_recess + 1);
 }
 module gates() {
-  male_at()   cr_gate(m_col, m_pcb, m_pcb_dz, m_hw, m_z, m_setback);
-  female_at() cr_gate(f_col, f_pcb, f_pcb_dz, f_hw, f_z, 0);
+  male_at()   cr_gate(m_hw, m_zb, m_pcb[1], m_z);
+  female_at() cr_gate(f_hw, f_zb, f_pcb[1], f_z);
+  // foot on top of the male collar, so the plug cannot tip
+  translate([m_xcf - 1.5, port_y - m_hw + 0.4, m_z + m_col[1] / 2 + 0.2]) cube([1.2, 2 * (m_hw - 0.4), H - lid_t - m_z - m_col[1] / 2 - 0.19]);
 }
 
 module body() {
@@ -219,13 +224,15 @@ module coil() translate([ring_c[0], ring_c[1], skin + ring_t + 0.1]) { // shield
     hull() for (x = [-5.5, 5.5]) translate([x, 0]) circle(d = 9);
   }
 }
-module conn(sh, len, c, pcb, pdz) { // mock board in the cradle's local frame
-  pill_x(sh[0], sh[1], len);
-  translate([-c[2], -c[0] / 2, -c[1] / 2]) cube([c[2], c[0], c[1]]);
-  translate([-c[2] - pcb[2], -pcb[0] / 2, pdz - pcb[1] / 2]) cube([pcb[2] + 0.5, pcb[0], pcb[1]]);
+module plug() male_at() { // mock boards, in the cradle's local frame
+  translate([m_len - m_shell_len, 0, 0]) pill_x(m_shell[0], m_shell[1], m_shell_len);
+  translate([4, -m_col[0] / 2, -m_col[1] / 2]) cube([m_len - m_shell_len - 4, m_col[0], m_col[1]]);
+  translate([0, -m_pcb[0] / 2, -m_pcb[1] / 2]) cube([4.5, m_pcb[0], m_pcb[1]]);
 }
-module plug() male_at() conn(m_shell, m_shell_len, m_col, m_pcb, m_pcb_dz);
-module jack() female_at() conn(f_shell, f_shell_len, f_col, f_pcb, f_pcb_dz);
+module jack() female_at() {
+  translate([f_len - 7.7, 0, 0]) pill_x(f_shell[0], f_shell[1], 7.7);
+  translate([0, -f_pcb[0] / 2, -f_pcb[1] / 2]) cube([f_len - 7.2, f_pcb[0], f_pcb[1]]);
+}
 module rx_pcb() translate([-12, 20, floor_t]) cube([14, 34, 1.5]); // Qi receiver flex board: slid through the slot, under the plug shelf
 
 if (part == "body") body();
