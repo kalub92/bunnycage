@@ -3,10 +3,10 @@
 set -e
 cd "$(dirname "$0")/.."
 mkdir -p stl guide/models
-for p in body lid fit_test; do
+for p in body lid fit_test port_test; do
   openscad -q -D "part=\"$p\"" -o "stl/bunnycage_$p.stl" cad/bunnycage.scad &
 done
-for p in lid r1 ring coil plug rx; do
+for p in lid r1 ring coil plug jack rx; do
   openscad -q -D "part=\"viz_$p\"" -o "guide/models/$p.stl" cad/bunnycage.scad &
 done
 wait

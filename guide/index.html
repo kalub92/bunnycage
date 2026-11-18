@@ -83,14 +83,15 @@ td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-spa
   <header>
     <span class="label">Rabbit r1 · MagSafe + Qi charging case · rev A</span>
     <h1>Bunnycage</h1>
-    <p>A two-part printed case that snaps the r1 onto any MagSafe mount and charges it wirelessly. The r1 has no charging coil of its own, so the case carries one and feeds the USB-C port from a bay on the left edge.</p>
+    <p>A two-part printed case that snaps the r1 onto any MagSafe mount and charges it wirelessly. The r1 has no charging coil of its own, so the case carries one and feeds the USB-C port from a bay on the left edge. A USB-C socket on the outside of that edge passes cable power and data straight through, so the r1 can stay in the case when you plug it into a computer.</p>
     <p><a href="https://github.com/kalub92/bunnycage" target="_blank" rel="noopener">Print files, CAD source and parts list on GitHub →</a></p>
     <ul class="specs">
       <li><span class="label">Case, outside</span><b>95.2 × 82.4 × 18.4 mm</b></li>
       <li><span class="label">Printed parts</span><b>2, no supports</b></li>
       <li><span class="label">Charging</span><b>Qi 5 V / 1 A</b></li>
+      <li><span class="label">Side socket</span><b>USB 2.0, A-to-C cable</b></li>
       <li><span class="label">Plastic over magnets</span><b>0.6 mm</b></li>
-      <li><span class="label">Soldering</span><b>2 wires</b></li>
+      <li><span class="label">Soldering</span><b>6 wires + 1 diode</b></li>
     </ul>
   </header>
 
@@ -118,14 +119,14 @@ td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-spa
       <thead><tr><th>Part</th><th>Qty</th><th>What to buy</th><th>Key size</th><th>Price</th><th>Link status</th></tr></thead>
       <tbody id="bom"></tbody>
     </table></div>
-    <p>You also need a soldering iron, hot glue or CA glue, and a MagSafe or Qi2 charger to test with. Tools and charger are not counted above.</p>
+    <p>You also need a soldering iron, about 15 cm of thin hook-up wire (28–30 AWG), heat-shrink for the diode, a USB-A-to-C cable, and a MagSafe or Qi2 charger to test with. Tools and charger are not counted above.</p>
   </section>
 
   <section class="two">
     <div><section>
       <h2>Print settings</h2>
       <div class="scroll"><table>
-        <tr><th>Files</th><td><code>stl/bunnycage_body.stl</code>, <code>stl/bunnycage_lid.stl</code>, and <code>stl/bunnycage_fit_test.stl</code> to try first, all in the <a href="https://github.com/kalub92/bunnycage" target="_blank" rel="noopener">GitHub repo</a></td></tr>
+        <tr><th>Files</th><td><code>stl/bunnycage_body.stl</code>, <code>stl/bunnycage_lid.stl</code>, plus <code>stl/bunnycage_fit_test.stl</code> and <code>stl/bunnycage_port_test.stl</code> to try first, all in the <a href="https://github.com/kalub92/bunnycage" target="_blank" rel="noopener">GitHub repo</a></td></tr>
         <tr><th>Material</th><td>PETG. PLA softens near a warm coil.</td></tr>
         <tr><th>Orientation</th><td>As exported: body back-face down, lid top-face down</td></tr>
         <tr><th>Layer / nozzle</th><td class="num">0.2 mm / 0.4 mm</td></tr>
@@ -144,8 +145,11 @@ td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-spa
         <tr><td>Corners bind</td><td><code>dev_r</code> (7.5)</td></tr>
         <tr><td>Receiver panel does not sit flush</td><td><code>bt</code> (3.0), <code>panel</code> (48 × 32)</td></tr>
         <tr><td>Your magnet ring is not 54 mm</td><td><code>ring_od</code> (54)</td></tr>
-        <tr><td>Plug board is long or short</td><td><code>spine_in</code> (18)</td></tr>
-        <tr><td>Plug sits high or low at the port</td><td><code>shelf_drop</code> (3.0)</td></tr>
+        <tr><td>A USB-C board is loose or will not go in</td><td>Measure it and set the <code>m_*</code> (plug) or <code>f_*</code> (socket) sizes; then <code>hole_fit</code> (0.3), <code>col_fit</code> (0.15)</td></tr>
+        <tr><td>r1 will not click home on the plug</td><td>lower <code>m_mate</code> (6.3)</td></tr>
+        <tr><td>Charging or data drops out with the r1 seated</td><td>raise <code>m_mate</code></td></tr>
+        <tr><td>Socket mouth sits proud or sunk</td><td><code>f_shell_len</code> (7.2), <code>f_recess</code> (0)</td></tr>
+        <tr><td>Move the socket along the edge</td><td><code>fport_y</code> (63)</td></tr>
         <tr><td>Lid is loose or will not press in</td><td><code>rib</code> (0.15)</td></tr>
       </table></div>
     </section></div>
@@ -164,13 +168,17 @@ td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-spa
 const BOM = [
   ["Qi receiver", "1 of 2", "Acxico Wireless Charger Receiver Module PCBA Board Coil, Universal Qi, 2-pack", "https://www.amazon.com/s?k=Acxico+2Pcs+Wireless+Charger+Receiver+Module+PCBA+Board+Coil+Universal+Qi+DIY", "Amazon", "coil 41 × 29; sheet ≈ 42 × 34; board 34 × 14", "$9.99", "ok", "in stock on 16 Nov 2026 per saved listing; link is a title search"],
   ["Magnet ring", "1 of 5", "MagSafe magnet ring. Case is now sized for a 53.9 × 45.8 × 2.6 mm ring; this linked ring is 1.5 mm thick and needs ring_t = 1.5, bt = 2.6", "https://totalelement.com/products/54-x-46-x-1-5mm-magsafe-neodymium-rare-earth-magnet-phone-attachment-ring-assembly-with-alignment-magnet-5-pack", "TotalElement", "54 OD / 46 ID / 1.5", "$24.99", "ok", "in stock"],
-  ["USB-C plug", "1 of 10", "ANMBEST USB-C 24-pin male plug on solder board, 10-pack. Choose style Male", "https://www.amazon.com/dp/B091CRLJM2?th=1", "Amazon", "plug 8.4 × 2.6 mm", "$7.49", "ok", "in stock on 16 Nov 2026 per saved listing"],
+  ["USB-C plug + socket", "1 + 1", "ANMBEST USB-C 24-pin solder boards. The pack has both: green male plug (to the r1) and blue female socket (side port)", "https://www.amazon.com/dp/B091CRLJM2?th=1", "Amazon", "plug 8.4 × 2.6 mm", "$7.49", "ok", "in stock on 16 Nov 2026 per saved listing"],
+  ["Schottky diode", "1", "1N5817 (or any 1 A+ Schottky, e.g. SS14). Goes in the receiver's red wire so cable power cannot flow back into the receiver", "https://www.digikey.com/en/products/result?keywords=1N5817", "DigiKey", "DO-41, 5 × 2.7 mm", "≈ $0.40", "warn", "search link, not checked"],
   ["Filament", "29 g", "Polymaker PolyLite PETG 1.75 mm, 1 kg", "https://matterhackers.com/store/l/polymaker-polylite-petg-grey-175mm-1kg/sk/MUR5Z8PG", "MatterHackers", "1.75 mm", "$19.99", "ok", "in stock"],
   ["Adhesive sheet", "1", "3M 468MP transfer adhesive, 305 × 305 mm", "https://spool3d.ca/3m-468mp-adhesive-sheet-305mm-x-305mm/", "Spool3D (Canada)", "0.13 mm thick", "CA$8.00", "ok", "in stock; ships from Canada"],
   ["Kapton tape", "1", "Polyimide tape 10 mm × 33 yd", "https://protosupplies.com/product/polyimide-kapton-tape-10mm-x-33yds/", "ProtoSupplies", "10 mm wide", "$1.95", "ok", "in stock"],
 ];
 const RISKS = [
   "<strong>Not yet printed or fitted to a real r1.</strong> Dimensions come from rabbit's official drawing (about ±0.3 mm) and a community model. Print the fit-test piece before the full body.",
+  "<strong>The USB-C board sizes are estimates</strong> scaled from the listing photos, so the pill holes, collar channels and lid gates may be off by a few tenths. Print the port-test piece, try both boards in it, and correct the <code>m_*</code> and <code>f_*</code> numbers from caliper measurements before printing the full case.",
+  "<strong>The side socket needs a USB-A-to-C cable.</strong> The socket board has no CC resistors, so a USB-C-to-C cable or a USB-C PD charger will not power it or see the r1. On a Mac with only USB-C ports, go through a hub or adapter with a USB-A port. Data is USB 2.0 and power is 5 V only.",
+  "<strong>Do not use the cable and the wireless charger together.</strong> The diode stops cable power reaching the receiver, but the receiver could still push 5 V back up the cable. Lift the case off the charger while it is plugged in.",
   "<strong>Receiver size is partly estimated.</strong> The listing gives only the coil (41 × 29 mm). The ferrite sheet size was scaled from product photos; the recess is oversized and the sheet trims with scissors.",
   "<strong>The receiver is an unbranded module.</strong> The listing says Qi but names no chip. Confirm it charges on your MagSafe charger at step 5 before gluing.",
   "<strong>The SIM tray is covered</strong> by the spine wall. Slide the r1 out to reach it.",
@@ -181,23 +189,23 @@ const RISKS = [
 ];
 const STEPS = [
   { t: "The finished case", cam: "front", off: {}, hide: ["puck"],
-    h: "<p>The r1 rides in two rails and slides out to the right. The left spine hides the USB-C plug and the receiver board. Step through to build it.</p>" },
-  { t: "Print the body and lid", cam: "front", off: { lid: [0, 0, 30] }, hide: ["r1", "ring", "coil", "plug", "rx", "puck"],
-    h: "<ul><li>Print <strong>bunnycage_fit_test.stl</strong> first. It is a low frame of the body with all four corners and both snap bumps, and takes a fraction of the time.</li><li>Then print the body and lid in PETG, no supports.</li></ul>" },
-  { t: "Check the fit before adding electronics", cam: "front", off: { r1: [55, 0, 0] }, hide: ["lid", "ring", "coil", "plug", "rx", "puck"],
-    h: "<ul><li>Slide the r1 in from the right, screen up. The scroll wheel side goes in last.</li><li class='check'>It should glide under the lips and click past the two corner bumps, then sit with no rattle.</li><li>Too tight or no click? Adjust <code>clr</code> or <code>detent_pre</code> and reprint the test piece.</li></ul>" },
-  { t: "Set the magnet ring", cam: "top", off: { ring: [0, 0, 32] }, hide: ["r1", "lid", "coil", "plug", "rx", "puck"],
+    h: "<p>The r1 rides in two rails and slides out to the right. The left spine hides the USB-C plug, the receiver board and a USB-C socket that opens on the outside edge. Step through to build it.</p>" },
+  { t: "Print the test pieces, body and lid", cam: "front", off: { lid: [0, 0, 30] }, hide: ["r1", "ring", "coil", "plug", "jack", "rx", "puck"],
+    h: "<ul><li>Print <strong>bunnycage_fit_test.stl</strong> first. It is a low frame of the body with all four corners and both snap bumps.</li><li>Print <strong>bunnycage_port_test.stl</strong> too. It is a slice of the spine with both USB-C holes, plus the matching slice of lid.</li><li>Then print the body and lid in PETG, no supports. The lid prints top-face down with its gates pointing up.</li></ul>" },
+  { t: "Check the fit before adding electronics", cam: "front", off: { r1: [55, 0, 0] }, hide: ["lid", "ring", "coil", "plug", "jack", "rx", "puck"],
+    h: "<ul><li>Slide the r1 in from the right, screen up. The scroll wheel side goes in last.</li><li class='check'>It should glide under the lips and click past the two corner bumps, then sit with no rattle.</li><li>Too tight or no click? Adjust <code>clr</code> or <code>detent_pre</code> and reprint the test piece.</li><li><strong>Port test:</strong> push the bare plug board through the small pill hole and the socket board into the larger one, from the cradle side. Each should stop on its black collar, the socket mouth flush with the outside face. Press the lid slice on: its gates should drop into the grooves behind the collars and neither board should move.</li><li>If a board is loose or will not go in, measure it and correct the <code>m_*</code> / <code>f_*</code> sizes.</li></ul>" },
+  { t: "Set the magnet ring", cam: "top", off: { ring: [0, 0, 32] }, hide: ["r1", "lid", "coil", "plug", "jack", "rx", "puck"],
     h: "<ul><li class='caution'><strong>Check polarity first.</strong> Lay the ring loose in the pocket, magnet side down and steel backing up toward the r1, and bring your MagSafe charger up to the outside of the case. It should pull in hard. If it pushes away or feels weak, flip the ring.</li><li>Stick it down with the adhesive sheet, pressed against the pocket wall.</li><li>Leave the small orientation magnet out.</li><li>The ring drops over the raised boss in the middle of the pocket. The boss is what the coil rests on.</li></ul>" },
-  { t: "Lay the receiver over the ring", cam: "top", off: { coil: [0, 0, 32] }, hide: ["r1", "lid", "plug", "rx", "puck"],
+  { t: "Lay the receiver over the ring", cam: "top", off: { coil: [0, 0, 32] }, hide: ["r1", "lid", "plug", "jack", "rx", "puck"],
     h: "<ul><li>Hold the coil and board flat together and slide the <strong>board first</strong> through the wide slot under the spine wall. It passes under the plug shelf and stops with the coil resting on the boss in the centre of the ring. Copper side down, long side across the case. Nothing needs bending.</li><li>Lay the <strong>black ferrite sheet</strong> on top in the rectangular recess, between the coil and the r1. Trim it with scissors if it is too big. Without the sheet the coil heats the battery and charges badly.</li><li>Fix the sheet with a strip of adhesive along each long edge.</li></ul>" },
-  { t: "Wire the receiver to the USB-C plug", cam: "spine", off: { rx: [0, 0, 26], plug: [-4, 0, 26] }, hide: ["r1", "lid", "puck"],
-    h: "<ul><li>Solder the receiver's <strong>red</strong> wire to the <strong>V</strong> pad on the plug board (the end pad with two small holes) and <strong>black</strong> to <strong>G</strong> at the other end. Trim the wires to about 40 mm.</li><li><strong>No CC resistor to add.</strong> The plug board has no CC pad because the 56 kΩ resistor that tells the r1 a charger is attached is already fitted on the back (R1 and R3 both measure 56 kΩ).</li><li>Leave the two middle pads, D+ and D−, unconnected.</li><li class='check'>Bench test: set the case on the charger and measure 5 V across V and G before going further.</li><li>Tape the receiver board down where it lies.</li></ul>" },
-  { t: "Seat the plug using the r1 as the jig", cam: "front", off: { r1: [38, 0, 0] }, hide: ["lid", "puck"],
-    h: "<ul><li>Rest the plug board on its shelf with the plug poking through the window.</li><li>Slide the r1 in until it clicks home and the plug is fully in the port. The r1 has now put the plug exactly where it belongs.</li><li>Flood under and around the plug board with hot glue, and pack the gap between the tail of the board and the outer wall. That plug of glue takes the push every time the r1 slides in.</li><li>Let it set before pulling the r1 out.</li></ul>" },
-  { t: "Tape over the coil and close the spine", cam: "front", off: { lid: [0, 0, 26], r1: [70, 0, 0] }, hide: ["puck"],
-    h: "<ul><li>With the r1 out, lay Kapton tape across the receiver panel so the r1's back slides on tape.</li><li>Tuck the wires down and press the lid into the spine. Six small ribs hold it by friction. The notch on the left edge is for prying it back off.</li></ul>" },
-  { t: "Snap on and charge", cam: "back", xray: true, off: { puck: [0, 0, 0] }, hide: [],
-    h: "<ul><li>Slide the r1 in and put the case on a MagSafe charger or mount.</li><li class='check'>The r1 should show charging within a few seconds.</li><li>Feel the back after ten minutes. Warm is normal, hot is not.</li></ul>" },
+  { t: "Wire the two USB-C boards and the receiver", cam: "spine", off: { rx: [0, 0, 26], plug: [-5, 0, 26], jack: [5, 0, 26] }, hide: ["r1", "lid", "puck"],
+    h: "<ul><li><strong>Board to board:</strong> join the green plug board and the blue socket board with four wires about 25 mm long, label to label: <strong>V–V, D+–D+, D−–D−, G–G</strong>. D+ and D− sit in swapped positions on the two boards, so follow the printed labels, not the pad order.</li><li><strong>Receiver:</strong> solder its <strong>black</strong> wire to <strong>G</strong> on the plug board. Put the <strong>diode</strong> in its <strong>red</strong> wire, striped end toward the board, and solder that end to <strong>V</strong> (the end pad with two small holes). Cover the diode in heat-shrink.</li><li>Solder every wire on the pad side and lead it straight back off the tail of the board. The lid gate comes down just behind each black collar and needs that space clear.</li><li><strong>No CC resistor to add.</strong> The 56 kΩ that tells the r1 a charger is attached is already on the back of the plug board (R1 and R3 both measure 56 kΩ).</li><li class='check'>Bench test 1: case on the charger, measure about 4.6 V across V and G (5 V less the diode).</li><li class='check'>Bench test 2: off the charger, USB-A-to-C cable into the socket, measure 5 V across V and G.</li><li>Tape the receiver board down where it lies.</li></ul>" },
+  { t: "Slide both boards into their holes", cam: "spine", off: { plug: [-8, 0, 0], jack: [8, 0, 0] }, hide: ["r1", "lid", "puck"],
+    h: "<ul><li><strong>Plug:</strong> pads up, push it through the pill hole in the inner wall until the black collar stops against the wall. The collar rests on the shelf between the two cheeks.</li><li><strong>Socket:</strong> pads up, push it outward into the tunnel in the outer wall until its collar stops. The metal mouth should sit flush with the outside of the case.</li><li>Tuck the wires down between the two cradles.</li><li class='check'>Holding a fingertip behind the plug board, slide the r1 in. It should click home with the plug fully in the port. If it stops short, lower <code>m_mate</code>.</li><li>No glue is needed: the lid locks both boards in the next step.</li></ul>" },
+  { t: "Tape over the coil and press the lid on", cam: "front", off: { lid: [0, 0, 26], r1: [70, 0, 0] }, hide: ["puck"],
+    h: "<ul><li>With the r1 out, lay Kapton tape across the receiver panel so the r1's back slides on tape.</li><li>Press the lid into the spine. Under it, a <strong>gate</strong> drops into the grooves behind each black collar and a foot lands on top of it, so neither board can push back, lift or twist.</li><li>If the lid will not seat, a wire or solder blob is under a gate. Move it; do not force the lid.</li><li>Six small ribs hold the lid by friction. The notch on the left edge is for prying it back off.</li></ul>" },
+  { t: "Snap on, charge, plug in", cam: "back", xray: true, off: { puck: [0, 0, 0] }, hide: [],
+    h: "<ul><li>Slide the r1 in and put the case on a MagSafe charger or mount.</li><li class='check'>The r1 should show charging within a few seconds.</li><li>Feel the back after ten minutes. Warm is normal, hot is not.</li><li><strong>Cable:</strong> lift the case off the charger and plug a USB-A-to-C cable into the side socket. The r1 should charge, and show up on the computer.</li></ul>" },
 ];
 
 // ---- page content from the data above ----
@@ -236,7 +244,7 @@ go(0);
   const camGoal = new THREE.Vector3(); let camMoving = true;
   ctl.addEventListener("start", () => camMoving = false);
 
-  const COL = { body: 0x3b7d9e, lid: 0x4e94b6, r1: 0xf04e12, ring: 0x9aa3a8, coil: 0xc98a3c, plug: 0x2f9e5b, rx: 0x2f9e5b, puck: 0xe9edf0 };
+  const COL = { body: 0x3b7d9e, lid: 0x4e94b6, r1: 0xf04e12, ring: 0x9aa3a8, coil: 0xc98a3c, plug: 0x2f9e5b, jack: 0x3f7fd0, rx: 0x2f9e5b, puck: 0xe9edf0 };
   const parts = {}; let last = -1, lastX = null;
   const add = (name, geo) => { geo.computeVertexNormals();
     const m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: COL[name], roughness: 0.62, metalness: name === "ring" ? 0.6 : 0.05, transparent: true }));
@@ -245,7 +253,7 @@ go(0);
   const fetchPart = (n, tries) => loader.load("models/" + n + ".stl.txt", g => add(n, g), undefined, () => {
     if (tries) return setTimeout(() => fetchPart(n, tries - 1), 700); // one retry rides out a dropped request
     if (!failed++) $("note").textContent = "Some 3D models did not load. Reload the page to try again; the steps still work."; });
-  ["body", "lid", "r1", "ring", "coil", "plug", "rx"].forEach(n => fetchPart(n, 1));
+  ["body", "lid", "r1", "ring", "coil", "plug", "jack", "rx"].forEach(n => fetchPart(n, 1));
   const puck = new THREE.CylinderGeometry(28, 28, 5.5, 64); puck.rotateX(Math.PI / 2); puck.translate(29, 39, -2.75); add("puck", puck);
 
   function apply(force) {
